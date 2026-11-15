@@ -1,47 +1,47 @@
-# Deployment Notes
+# 배포 안내
 
-## TURN server for Internet Transfer
+## 인터넷 전송을 위한 TURN 서버
 
-Beware that you have to host your own TURN server to enable transfers between different networks.
+서로 다른 네트워크 간 전송을 가능하게 하려면 직접 TURN 서버를 호스팅해야 합니다.
 
-Follow [this guide](https://gabrieltanner.org/blog/turn-server/) to either install coturn directly on your system (Step 1) 
-or deploy it via Docker (Step 5).
+[이 가이드](https://gabrieltanner.org/blog/turn-server/)를 따라 시스템에 coturn을 직접 설치(1단계)하거나 
+Docker로 배포(5단계)하십시오.
 
-You can use the `docker-compose-coturn.yml` in this repository. See [Coturn and PairDrop via Docker Compose](#coturn-and-pairdrop-via-docker-compose).
+이 저장소의 `docker-compose-coturn.yml`을 사용할 수 있습니다. [Docker Compose로 Coturn과 PairDrop 실행하기](#coturn-and-pairdrop-via-docker-compose)를 참고하십시오.
  
-Alternatively, use a free, pre-configured TURN server like [OpenRelay](https://www.metered.ca/tools/openrelay/)
+또는 [OpenRelay](https://www.metered.ca/tools/openrelay/)와 같이 미리 구성된 무료 TURN 서버를 사용할 수도 있습니다.
 
 <br>
 
-## PairDrop via HTTPS
+## HTTPS로 PairDrop 제공하기
 
-On some browsers PairDrop must be served over TLS in order for some features to work properly.
-These may include:
-- Copying an incoming message via the 'copy' button
-- Installing PairDrop as PWA
-- Persistent pairing of devices
-- Changing of the display name
-- Notifications
+일부 브라우저에서는 몇몇 기능이 제대로 동작하려면 PairDrop을 TLS로 제공해야 합니다.
+해당 기능은 다음과 같습니다.
+- '복사' 버튼으로 수신한 메시지 복사하기
+- PairDrop을 PWA로 설치하기
+- 기기 간 영구 페어링
+- 표시 이름 변경
+- 알림
 
-Naturally, this is also recommended to increase security.
+물론 보안을 강화하기 위해서도 TLS 사용을 권장합니다.
 
 <br>
 
-## Deployment with Docker
+## Docker로 배포하기
 
-The easiest way to get PairDrop up and running is by using Docker.
+PairDrop을 가장 쉽게 실행하는 방법은 Docker를 사용하는 것입니다.
 
-### Docker Image from Docker Hub
+### Docker Hub의 Docker 이미지
 
 ```bash
 docker run -d --restart=unless-stopped --name=pairdrop -p 127.0.0.1:3000:3000 lscr.io/linuxserver/pairdrop
 ```
-> This image is hosted by [linuxserver.io](https://linuxserver.io). For more information visit https://hub.docker.com/r/linuxserver/pairdrop
+> 이 이미지는 [linuxserver.io](https://linuxserver.io)에서 호스팅합니다. 자세한 내용은 https://hub.docker.com/r/linuxserver/pairdrop 을 참고하십시오.
 
 
 <br>
 
-### Docker Image from GitHub Container Registry (ghcr.io)
+### GitHub Container Registry(ghcr.io)의 Docker 이미지
 
 ```bash
 docker run -d --restart=unless-stopped --name=pairdrop -p 127.0.0.1:3000:3000 ghcr.io/schlagmichdoch/pairdrop
@@ -50,56 +50,56 @@ docker run -d --restart=unless-stopped --name=pairdrop -p 127.0.0.1:3000:3000 gh
 
 <br>
 
-### Docker Image self-built
+### 직접 빌드한 Docker 이미지
 
-#### Build the image
+#### 이미지 빌드하기
 
 ```bash
 docker build --pull . -f Dockerfile -t pairdrop
 ```
 
-> A GitHub action is set up to do this step automatically at the release of new versions.
+> 새 버전이 릴리스될 때 이 단계를 자동으로 수행하도록 GitHub Action이 설정되어 있습니다.
 >
-> `--pull` ensures always the latest node image is used.
+> `--pull`은 항상 최신 node 이미지를 사용하도록 보장합니다.
 
-#### Run the image
+#### 이미지 실행하기
 
 ```bash
 docker run -d --restart=unless-stopped --name=pairdrop -p 127.0.0.1:3000:3000 -it pairdrop
 ```
 
-> You must use a server proxy to set the `X-Forwarded-For` header 
-> to prevent all clients from discovering each other (See [#HTTP-Server](#http-server)).
+> 모든 클라이언트가 서로를 발견하는 것을 막으려면 서버 프록시로 `X-Forwarded-For` 헤더를 설정해야 합니다 
+> ([#HTTP-Server](#http-server) 참고).
 >
-> To prevent bypassing the proxy by reaching the docker container directly, 
-> `127.0.0.1` is specified in the run command.
+> 프록시를 우회하여 Docker 컨테이너에 직접 접속하는 것을 막기 위해 
+> 실행 명령에 `127.0.0.1`을 지정합니다.
 
 
 <br>
 
-### Flags
+### 플래그
 
-Set options by using the following flags in the `docker run` command:
+`docker run` 명령에서 다음 플래그를 사용하여 옵션을 설정합니다.
 
-#### Port
+#### 포트
 
 ```bash
 -p 127.0.0.1:8080:3000
 ```
 
-> Specify the port used by the docker image
+> Docker 이미지가 사용할 포트를 지정합니다.
 >
 > - 3000 -> `-p 127.0.0.1:3000:3000`
 > - 8080 -> `-p 127.0.0.1:8080:3000`
 
-#### Set Environment Variables via Docker
+#### Docker로 환경 변수 설정하기
 
-Environment Variables are set directly in the `docker run` command: \
-e.g. `docker run -p 127.0.0.1:3000:3000 -it pairdrop -e DEBUG_MODE="true"`
+환경 변수는 `docker run` 명령에서 직접 설정합니다. \
+예: `docker run -p 127.0.0.1:3000:3000 -it pairdrop -e DEBUG_MODE="true"`
 
-Overview of available Environment Variables are found [here](#environment-variables).
+사용 가능한 환경 변수의 목록은 [여기](#environment-variables)에서 확인할 수 있습니다.
 
-Example:
+예시:
 ```bash
 docker run -d \
     --name=pairdrop \
@@ -118,9 +118,9 @@ docker run -d \
 
 <br>
 
-## Deployment with Docker Compose
+## Docker Compose로 배포하기
 
-Here's an example docker compose file:
+다음은 docker compose 파일의 예시입니다.
 
 ```yaml
 version: "3"
@@ -130,146 +130,148 @@ services:
         container_name: pairdrop
         restart: unless-stopped
         environment:
-            - PUID=1000 # UID to run the application as
-            - PGID=1000 # GID to run the application as
-            - WS_FALLBACK=false # Set to true to enable websocket fallback if the peer to peer WebRTC connection is not available to the client.
-            - RATE_LIMIT=false # Set to true to limit clients to 1000 requests per 5 min.
-            - RTC_CONFIG=false # Set to the path of a file that specifies the STUN/TURN servers.
-            - DEBUG_MODE=false # Set to true to debug container and peer connections.
-            - TZ=Etc/UTC # Time Zone
+            - PUID=1000 # 애플리케이션을 실행할 UID
+            - PGID=1000 # 애플리케이션을 실행할 GID
+            - WS_FALLBACK=false # 클라이언트가 WebRTC 피어 투 피어 연결을 사용할 수 없을 때 websocket 폴백을 활성화하려면 true로 설정합니다.
+            - RATE_LIMIT=false # 클라이언트를 5분당 1000건의 요청으로 제한하려면 true로 설정합니다.
+            - RTC_CONFIG=false # STUN/TURN 서버를 지정하는 파일의 경로로 설정합니다.
+            - DEBUG_MODE=false # 컨테이너와 피어 연결을 디버깅하려면 true로 설정합니다.
+            - TZ=Etc/UTC # 시간대
         ports:
-            - "127.0.0.1:3000:3000" # Web UI
+            - "127.0.0.1:3000:3000" # 웹 UI
 ```
 
-Run the compose file with `docker compose up -d`.
+`docker compose up -d`로 compose 파일을 실행합니다.
 
-> You must use a server proxy to set the `X-Forwarded-For` header
-> to prevent all clients from discovering each other (See [#HTTP-Server](#http-server)).
+> 모든 클라이언트가 서로를 발견하는 것을 막으려면 서버 프록시로 `X-Forwarded-For` 헤더를 설정해야 합니다 
+> ([#HTTP-Server](#http-server) 참고).
 >
-> To prevent bypassing the proxy by reaching the Docker container 
-> directly, `127.0.0.1` is specified in the `ports` argument.
+> 프록시를 우회하여 Docker 컨테이너에 직접 접속하는 것을 막기 위해 
+> `ports` 인자에 `127.0.0.1`을 지정합니다.
 
 <br>
 
-## Deployment with Node.js
+## Node.js로 배포하기
 
-Clone this repository and enter the folder
+이 저장소를 클론한 뒤 해당 폴더로 이동합니다.
 
 ```bash
 git clone https://github.com/schlagmichdoch/PairDrop.git && cd PairDrop
 ```
 
-Install all dependencies with NPM:
+NPM으로 모든 의존성을 설치합니다.
 
 ```bash
 npm install
 ```
 
-Start the server with:
+다음 명령으로 서버를 시작합니다.
 
 ```bash
 npm start
 ```
 
-> By default, the node server listens on port 3000.
+> 기본적으로 node 서버는 3000번 포트에서 수신 대기합니다.
 
 
 <br>
 
-### Options / Flags
+### 옵션 / 플래그
 
-These are some flags only reasonable when deploying via Node.js
+다음은 Node.js로 배포할 때만 의미가 있는 플래그입니다.
 
-#### Port
+#### 포트
 
 ```bash
 PORT=3000
 ```
 
-> Default: `3000`
+> 기본값: `3000`
 > 
-> Environment variable to specify the port used by the Node.js server \
-> e.g. `PORT=3010 npm start`
+> Node.js 서버가 사용할 포트를 지정하는 환경 변수입니다. \
+> 예: `PORT=3010 npm start`
 
-#### Local Run
+#### 로컬 실행
 
 ```bash
 npm start -- --localhost-only
 ```
 
-> Only allow connections from localhost.
+> localhost에서 오는 연결만 허용합니다.
 >
-> You must use a server proxy to set the `X-Forwarded-For` header 
-> to prevent all clients from discovering each other (See [#HTTP-Server](#http-server)).
+> 모든 클라이언트가 서로를 발견하는 것을 막으려면 서버 프록시로 `X-Forwarded-For` 헤더를 설정해야 합니다 
+> ([#HTTP-Server](#http-server) 참고).
 >
-> Use this when deploying PairDrop with node to prevent 
-> bypassing the reverse proxy by reaching the Node.js server directly.
+> node로 PairDrop을 배포할 때 이 옵션을 사용하면 
+> 리버스 프록시를 우회하여 Node.js 서버에 직접 접속하는 것을 막을 수 있습니다.
 
-#### Automatic restart on error
+#### 오류 발생 시 자동 재시작
 
 ```bash
 npm start -- --auto-restart
 ```
 
-> Restarts server automatically on error
+> 오류가 발생하면 서버를 자동으로 재시작합니다.
 
-#### Production (autostart and rate-limit)
+#### 프로덕션 (자동 시작 및 요청 제한)
 
 ```bash
 npm run start:prod
 ```
 
-> shortcut for `RATE_LIMIT=5 npm start -- --auto-restart`
+> `RATE_LIMIT=5 npm start -- --auto-restart`의 단축 명령입니다.
 
-#### Production (autostart, rate-limit, localhost-only)
+#### 프로덕션 (자동 시작, 요청 제한, localhost 전용)
 
 ```bash
 npm run start:prod -- --localhost-only
 ```
 
-> To prevent connections to the node server from bypassing \
-> the proxy server you should always use "--localhost-only" on production.
+> node 서버로의 연결이 프록시 서버를 우회하는 것을 막으려면 \
+> 프로덕션에서는 항상 "--localhost-only"를 사용해야 합니다.
 
-#### Set Environment Variables via Node.js
+#### Node.js로 환경 변수 설정하기
 
-To specify environment variables set them in the run command in front of `npm start`.
-The syntax is different on Unix and Windows.
+환경 변수를 지정하려면 실행 명령에서 `npm start` 앞에 설정합니다.
+구문은 Unix와 Windows에서 서로 다릅니다.
 
-On Unix based systems
+Unix 기반 시스템
 
 ```bash
 PORT=3000 RTC_CONFIG="rtc_config.json" npm start
 ```
 
-On Windows
+Windows
 
 ```bash
 $env:PORT=3000 RTC_CONFIG="rtc_config.json"; npm start
 ```
 
-Overview of available Environment Variables are found [here](#environment-variables).
+사용 가능한 환경 변수의 목록은 [여기](#environment-variables)에서 확인할 수 있습니다.
 
 <br>
 
-## Environment Variables
+<a id="environment-variables"></a>
+## 환경 변수
 
-### Debug Mode
+<a id="debug-mode"></a>
+### 디버그 모드
 
 ```bash
 DEBUG_MODE="true"
 ```
 
-> Default: `false`
+> 기본값: `false`
 >
-> Logs the used environment variables for debugging.
+> 디버깅을 위해 사용 중인 환경 변수를 로그로 출력합니다.
 >
-> Prints debugging information about the connecting peers IP addresses.
+> 접속하는 피어의 IP 주소에 대한 디버깅 정보를 출력합니다.
 > 
-> This is quite useful to check whether the [#HTTP-Server](#http-server)
-> is configured correctly, so the auto-discovery feature works correctly.
-> Otherwise, all clients discover each other mutually, independently of their network status.
+> [#HTTP-Server](#http-server)가 올바르게 구성되어 자동 검색 기능이 제대로 동작하는지 
+> 확인할 때 매우 유용합니다.
+> 그렇지 않으면 모든 클라이언트가 네트워크 상태와 관계없이 서로를 발견하게 됩니다.
 >
-> If this flag is set to `"true"` each peer that connects to the PairDrop server will produce a log to STDOUT like this:
+> 이 플래그를 `"true"`로 설정하면 PairDrop 서버에 접속하는 각 피어마다 다음과 같은 로그가 STDOUT으로 출력됩니다.
 >
 > ```
 > ----DEBUGGING-PEER-IP-START----
@@ -282,107 +284,109 @@ DEBUG_MODE="true"
 > ----DEBUGGING-PEER-IP-END----
 > ```
 >
-> If the IP address "PairDrop uses" matches the public IP address of the client device, everything is set up correctly. \
-> To find out the public IP address of the client device visit https://whatsmyip.com/.
+> "PairDrop uses"의 IP 주소가 클라이언트 기기의 공인 IP 주소와 일치하면 모든 설정이 올바르게 된 것입니다. \
+> 클라이언트 기기의 공인 IP 주소는 https://whatsmyip.com/ 에서 확인할 수 있습니다.
 >
-> To preserve your clients' privacy: \
-> **Never use this environment variable in production!**
+> 클라이언트의 개인정보를 보호하려면 \
+> **프로덕션에서는 이 환경 변수를 절대 사용하지 마십시오!**
 
 
 <br>
 
-### Rate limiting requests
+### 요청 제한
 
 ```bash
 RATE_LIMIT=1
 ```
 
-> Default: `false`
+> 기본값: `false`
 >
-> Limits clients to 1000 requests per 5 min
+> 클라이언트를 5분당 1000건의 요청으로 제한합니다.
 >
-> "If you are behind a proxy/load balancer (usually the case with most hosting services, e.g. Heroku, Bluemix, AWS ELB,
-> Render, Nginx, Cloudflare, Akamai, Fastly, Firebase Hosting, Rackspace LB, Riverbed Stingray, etc.), the IP address of
-> the request might be the IP of the load balancer/reverse proxy (making the rate limiter effectively a global one and
-> blocking all requests once the limit is reached) or undefined."
-> (See: https://express-rate-limit.mintlify.app/guides/troubleshooting-proxy-issues)
+> "프록시/로드 밸런서 뒤에 있는 경우(Heroku, Bluemix, AWS ELB, Render, Nginx, Cloudflare, Akamai, Fastly, 
+> Firebase Hosting, Rackspace LB, Riverbed Stingray 등 대부분의 호스팅 서비스에서 일반적입니다), 
+> 요청의 IP 주소가 로드 밸런서/리버스 프록시의 IP가 되거나(요청 제한이 사실상 전역으로 동작하여 
+> 한도에 도달하면 모든 요청이 차단됩니다) undefined가 될 수 있습니다."
+> (참고: https://express-rate-limit.mintlify.app/guides/troubleshooting-proxy-issues)
 >
-> To find the correct number to use for this setting:
+> 이 설정에 사용할 올바른 숫자를 찾으려면 다음과 같이 하십시오.
 >
-> 1. Start PairDrop with `DEBUG_MODE=True` and `RATE_LIMIT=1`
-> 2. Make a `get` request to `/ip` of the PairDrop instance (e.g. `https://pairdrop-example.net/ip`)
-> 3. Check if the IP address returned in the response matches your public IP address (find out by visiting e.g. https://whatsmyip.com/)
-> 4. You have found the correct number if the IP addresses match. If not, then increase `RATE_LIMIT` by one and redo 1. - 4.
+> 1. `DEBUG_MODE=True`와 `RATE_LIMIT=1`로 PairDrop을 시작합니다.
+> 2. PairDrop 인스턴스의 `/ip`로 `get` 요청을 보냅니다 (예: `https://pairdrop-example.net/ip`).
+> 3. 응답으로 반환된 IP 주소가 자신의 공인 IP 주소와 일치하는지 확인합니다 (예: https://whatsmyip.com/ 에서 확인할 수 있습니다).
+> 4. IP 주소가 일치하면 올바른 숫자를 찾은 것입니다. 일치하지 않으면 `RATE_LIMIT`을 1 늘리고 1~4단계를 다시 수행합니다.
 >
-> e.g. on Render you must use RATE_LIMIT=5
+> 예: Render에서는 RATE_LIMIT=5를 사용해야 합니다.
 
 
 <br>
 
-### IPv6 Localization
+### IPv6 지역화
 
 ```bash
 IPV6_LOCALIZE=4
 ```
 
-> Default: `false`
+> 기본값: `false`
 >
-> To enable Peer Auto-Discovery among IPv6 peers, you can specify a reduced number of segments \
-> of the client IPv6 address to be evaluated as the peer's IP. \
-> This can be especially useful when using Cloudflare as a proxy.
+> IPv6 피어 간 피어 자동 검색을 활성화하려면, 클라이언트 IPv6 주소 중 피어의 IP로 평가할 \
+> 세그먼트 수를 줄여서 지정할 수 있습니다. \
+> Cloudflare를 프록시로 사용할 때 특히 유용합니다.
 >
-> The flag must be set to an **integer** between `1` and `7`. \
-> The number represents the number of IPv6 [hextets](https://en.wikipedia.org/wiki/IPv6#Address_representation) \
-> to match the client IP against. The most common value would be `4`, \
-> which will group peers within the same `/64` subnet.
+> 이 플래그는 `1`에서 `7` 사이의 **정수**로 설정해야 합니다. \
+> 이 숫자는 클라이언트 IP와 비교할 IPv6 [헥테트](https://en.wikipedia.org/wiki/IPv6#Address_representation)의 \
+> 개수를 의미합니다. 가장 일반적인 값은 `4`이며, \
+> 같은 `/64` 서브넷에 있는 피어끼리 묶입니다.
 
 
 <br>
 
-### Websocket Fallback (for VPN)
+<a id="websocket-fallback-for-vpn"></a>
+### Websocket 폴백 (VPN용)
 
 ```bash
 WS_FALLBACK=true
 ```
 
-> Default: `false`
+> 기본값: `false`
 >
-> Provides PairDrop to clients with an included websocket fallback \
-> if the peer to peer WebRTC connection is not available to the client.
+> 클라이언트가 WebRTC 피어 투 피어 연결을 사용할 수 없는 경우를 위해 \
+> 내장된 websocket 폴백을 클라이언트에 제공합니다.
 >
-> This is not used on the official https://pairdrop.net website, 
-> but you can activate it on your self-hosted instance.\
-> This is especially useful if you connect to your instance via a VPN (as most VPN services block WebRTC completely in 
-> order to hide your real IP address). ([Read more here](https://privacysavvy.com/security/safe-browsing/disable-webrtc-chrome-firefox-safari-opera-edge/)).
+> 공식 https://pairdrop.net 웹사이트에서는 사용하지 않지만, 
+> 직접 호스팅하는 인스턴스에서는 활성화할 수 있습니다.\
+> VPN을 통해 인스턴스에 접속하는 경우 특히 유용합니다(대부분의 VPN 서비스는 실제 IP 주소를 숨기기 위해 
+> WebRTC를 완전히 차단합니다). ([자세한 내용은 여기](https://privacysavvy.com/security/safe-browsing/disable-webrtc-chrome-firefox-safari-opera-edge/)).
 >
-> **Warning:** \
-> All traffic sent between devices using this fallback
-> is routed through the server and therefor not peer to peer!
+> **경고:** \
+> 이 폴백을 사용하여 기기 간에 전송되는 모든 트래픽은 
+> 서버를 경유하므로 피어 투 피어가 아닙니다!
 > 
-> Beware that the traffic routed via this fallback is readable by the server. \
-> Only ever use this on instances you can trust.
+> 이 폴백을 통해 전송되는 트래픽은 서버에서 읽을 수 있다는 점에 유의하십시오. \
+> 신뢰할 수 있는 인스턴스에서만 사용하십시오.
 > 
-> Additionally, beware that all traffic using this fallback debits the servers data plan.
+> 또한 이 폴백을 사용하는 모든 트래픽은 서버의 데이터 요금제를 소모한다는 점에도 유의하십시오.
 
 
 <br>
 
-### Specify STUN/TURN Servers
+<a id="specify-stunturn-servers"></a>
+### STUN/TURN 서버 지정하기
 
 ```bash
 RTC_CONFIG="rtc_config.json"
 ```
 
-> Default: `false`
+> 기본값: `false`
 >
-> Specify the STUN/TURN servers PairDrop clients use by setting \
-> `RTC_CONFIG` to a JSON file including the configuration. \
-> You can use `rtc_config_example.json` as a starting point.
+> `RTC_CONFIG`를 설정 내용이 담긴 JSON 파일로 지정하여 \
+> PairDrop 클라이언트가 사용할 STUN/TURN 서버를 지정합니다. \
+> `rtc_config_example.json`을 출발점으로 사용할 수 있습니다.
 >
-> To host your own TURN server you can follow this guide: https://gabrieltanner.org/blog/turn-server/
-> Alternatively, use a free, pre-configured TURN server like [OpenRelay](<[url](https://www.metered.ca/tools/openrelay/)>)
+> 직접 TURN 서버를 호스팅하려면 다음 가이드를 따를 수 있습니다: https://gabrieltanner.org/blog/turn-server/
+> 또는 [OpenRelay](<[url](https://www.metered.ca/tools/openrelay/)>)와 같이 미리 구성된 무료 TURN 서버를 사용할 수도 있습니다.
 >
-> Default configuration:
+> 기본 구성:
 >
 > ```json
 > {
@@ -397,33 +401,33 @@ RTC_CONFIG="rtc_config.json"
 
 <br>
 
-You can host an instance that uses another signaling server
-This can be useful if you don't want to trust the client files that are hosted on another instance but still want to connect to devices that use https://pairdrop.net.
+다른 시그널링 서버를 사용하는 인스턴스를 호스팅할 수 있습니다.
+다른 인스턴스에서 호스팅하는 클라이언트 파일은 신뢰하고 싶지 않지만, https://pairdrop.net 을 사용하는 기기와는 계속 연결하고 싶을 때 유용합니다.
 
-### Specify Signaling Server
+### 시그널링 서버 지정하기
 
 ```bash
 SIGNALING_SERVER="pairdrop.net"
 ```
 
-> Default: `false`
+> 기본값: `false`
 >
-> By default, clients connecting to your instance use the signaling server of your instance to connect to other devices.
+> 기본적으로 인스턴스에 접속한 클라이언트는 해당 인스턴스의 시그널링 서버를 사용하여 다른 기기에 연결합니다.
 > 
-> By using `SIGNALING_SERVER`, you can host an instance that uses another signaling server.
+> `SIGNALING_SERVER`를 사용하면 다른 시그널링 서버를 사용하는 인스턴스를 호스팅할 수 있습니다.
 > 
-> This can be useful if you want to ensure the integrity of the client files and don't want to trust the client files that are hosted on another PairDrop instance but still want to connect to devices that use the other instance.
-> E.g. host your own client files under *pairdrop.your-domain.com* but use the official signaling server under *pairdrop.net*
-> This way devices connecting to *pairdrop.your-domain.com* and *pairdrop.net* can discover each other.
+> 클라이언트 파일의 무결성을 보장하고 싶어 다른 PairDrop 인스턴스에서 호스팅하는 클라이언트 파일은 신뢰하고 싶지 않지만, 해당 인스턴스를 사용하는 기기와는 계속 연결하고 싶을 때 유용합니다.
+> 예를 들어 클라이언트 파일은 *pairdrop.your-domain.com*에서 직접 호스팅하되 시그널링 서버는 *pairdrop.net*의 공식 서버를 사용할 수 있습니다.
+> 이렇게 하면 *pairdrop.your-domain.com*과 *pairdrop.net*에 접속한 기기끼리 서로를 발견할 수 있습니다.
 > 
-> Beware that the version of your PairDrop server must be compatible with the version of the signaling server.
+> PairDrop 서버의 버전이 시그널링 서버의 버전과 호환되어야 한다는 점에 유의하십시오.
 >
-> `SIGNALING_SERVER` must be a valid url without the protocol prefix. 
-> Examples of valid values: `pairdrop.net`, `pairdrop.your-domain.com:3000`, `your-domain.com/pairdrop`
+> `SIGNALING_SERVER`는 프로토콜 접두사가 없는 올바른 URL이어야 합니다. 
+> 올바른 값의 예: `pairdrop.net`, `pairdrop.your-domain.com:3000`, `your-domain.com/pairdrop`
 
 <br>
 
-### Customizable buttons for the _About PairDrop_ page
+### _PairDrop 정보_ 페이지의 버튼 사용자 지정
 
 ```bash
 DONATION_BUTTON_ACTIVE=true
@@ -446,38 +450,39 @@ PRIVACYPOLICY_BUTTON_LINK="https://link-to-your-privacy-policy.net"
 PRIVACYPOLICY_BUTTON_TITLE="Open our privacy policy"
 ```
 
-> Default: unset
+> 기본값: 설정되지 않음
 >
-> By default, clients will show the default button configuration: GitHub, BuyMeACoffee, Twitter, and FAQ on GitHub.
+> 기본적으로 클라이언트에는 GitHub, BuyMeACoffee, Twitter, GitHub의 FAQ 버튼이 기본 구성으로 표시됩니다.
 > 
-> The GitHub and FAQ on GitHub buttons are essential, so they are always shown.
+> GitHub와 GitHub의 FAQ 버튼은 필수이므로 항상 표시됩니다.
 > 
-> The other buttons can be customized:
+> 나머지 버튼은 다음과 같이 사용자 지정할 수 있습니다.
 >
-> * `*_BUTTON_ACTIVE`: set this to `true` to show a natively hidden button or to `false` to hide a normally shown button
-> * `*_BUTTON_LINK`: set this to any URL to overwrite the href attribute of the button
-> * `*_BUTTON_TITLE`: set this to overwrite the hover title of the button. This will prevent the title from being translated.
+> * `*_BUTTON_ACTIVE`: 기본적으로 숨겨진 버튼을 표시하려면 `true`로, 기본적으로 표시되는 버튼을 숨기려면 `false`로 설정합니다.
+> * `*_BUTTON_LINK`: 버튼의 href 속성을 덮어쓸 URL을 설정합니다.
+> * `*_BUTTON_TITLE`: 버튼의 마우스 오버 제목을 덮어쓰도록 설정합니다. 이 경우 제목이 번역되지 않습니다.
 
 <br>
 
-## Healthcheck
+## 상태 점검
 
-> The Docker Image hosted on `ghcr.io` and the self-built Docker Image include a healthcheck.
+> `ghcr.io`에서 호스팅하는 Docker 이미지와 직접 빌드한 Docker 이미지에는 상태 점검(healthcheck)이 포함되어 있습니다.
 >
-> Read more about [Docker Swarm Usage](docker-swarm-usage.md#docker-swarm-usage).
+> 자세한 내용은 [Docker Swarm 사용법](docker-swarm-usage.md#docker-swarm-usage)을 참고하십시오.
 
 <br>
 
-## HTTP-Server
+<a id="http-server"></a>
+## HTTP 서버
 
-When running PairDrop, the `X-Forwarded-For` header has to be set by a proxy. \
-Otherwise, all clients will be mutually visible.
+PairDrop을 실행할 때 `X-Forwarded-For` 헤더는 프록시가 설정해야 합니다. \
+그렇지 않으면 모든 클라이언트가 서로에게 보이게 됩니다.
 
-To check if your setup is configured correctly [use the environment variable `DEBUG_MODE="true"`](#debug-mode).
+설정이 올바른지 확인하려면 [환경 변수 `DEBUG_MODE="true"`를 사용하십시오](#debug-mode).
 
-### Using nginx
+### nginx 사용하기
 
-#### Allow http and https requests
+#### http 및 https 요청 허용
 
 ```
 server {
@@ -511,7 +516,7 @@ server {
 }
 ```
 
-#### Automatic http to https redirect:
+#### http에서 https로 자동 리디렉션:
 
 ```
 server {
@@ -544,9 +549,9 @@ server {
 
 <br>
 
-### Using Apache
+### Apache 사용하기
 
-install modules `proxy`, `proxy_http`, `mod_proxy_wstunnel`
+`proxy`, `proxy_http`, `mod_proxy_wstunnel` 모듈을 설치합니다.
 
 ```bash
 a2enmod proxy
@@ -558,11 +563,11 @@ a2enmod proxy_http
 
 <br>
 
-Create a new configuration file under `/etc/apache2/sites-available` (on Debian)
+`/etc/apache2/sites-available` 아래에 새 설정 파일을 만듭니다 (Debian 기준).
 
 **pairdrop.conf**
 
-#### Allow HTTP and HTTPS requests
+#### HTTP 및 HTTPS 요청 허용
 
 ```apacheconf
 <VirtualHost *:80>
@@ -573,7 +578,7 @@ Create a new configuration file under `/etc/apache2/sites-available` (on Debian)
 </VirtualHost>
 ```
 
-#### Automatic HTTP to HTTPS redirect:
+#### HTTP에서 HTTPS로 자동 리디렉션:
 
 ```apacheconf
 <VirtualHost *:80>
@@ -584,7 +589,7 @@ Create a new configuration file under `/etc/apache2/sites-available` (on Debian)
 </VirtualHost>
 ```
 
-Activate the new virtual host and reload Apache:
+새 가상 호스트를 활성화하고 Apache를 다시 불러옵니다.
 
 ```bash
 a2ensite pairdrop
@@ -596,58 +601,59 @@ service apache2 reload
 
 <br>
 
-## Coturn and PairDrop via Docker Compose
+<a id="coturn-and-pairdrop-via-docker-compose"></a>
+## Docker Compose로 Coturn과 PairDrop 실행하기
 
-### Setup container
-To run coturn and PairDrop at once by using the `docker-compose-coturn.yml` with TURN over TLS enabled
-you need to follow these steps:
+### 컨테이너 설정
+`docker-compose-coturn.yml`을 사용하여 TLS 기반 TURN을 활성화한 상태로 coturn과 PairDrop을 한 번에 실행하려면
+다음 단계를 따라야 합니다.
 
-1. Generate or retrieve certificates for your `<DOMAIN>` (e.g. letsencrypt / certbot)
-2. Create `./ssl` folder: `mkdir ssl`
-3. Copy your ssl-certificates and the privkey to `./ssl` 
-4. Restrict access to `./ssl`: `chown -R nobody:nogroup ./ssl`
-5. Create a dh-params file: `openssl dhparam -out ./ssl/dhparams.pem 4096` 
-6. Copy `rtc_config_example.json` to `rtc_config.json`
-7. Copy `turnserver_example.conf` to `turnserver.conf`
-8. Change `<DOMAIN>` in both files to the domain where your PairDrop instance is running 
-9. Change `username` and `password` in `turnserver.conf` and `rtc-config.json`
-10. To start the container including coturn run: \
+1. `<DOMAIN>`에 대한 인증서를 생성하거나 가져옵니다 (예: letsencrypt / certbot).
+2. `./ssl` 폴더를 만듭니다: `mkdir ssl`
+3. SSL 인증서와 개인 키를 `./ssl`에 복사합니다. 
+4. `./ssl`에 대한 접근을 제한합니다: `chown -R nobody:nogroup ./ssl`
+5. dh-params 파일을 만듭니다: `openssl dhparam -out ./ssl/dhparams.pem 4096` 
+6. `rtc_config_example.json`을 `rtc_config.json`으로 복사합니다.
+7. `turnserver_example.conf`를 `turnserver.conf`로 복사합니다.
+8. 두 파일의 `<DOMAIN>`을 PairDrop 인스턴스가 실행 중인 도메인으로 변경합니다. 
+9. `turnserver.conf`와 `rtc-config.json`의 `username`과 `password`를 변경합니다.
+10. coturn을 포함한 컨테이너를 시작하려면 다음을 실행합니다. \
   `docker compose -f docker-compose-coturn.yml up -d`
 
 <br>
 
-#### Setup container
-To restart the container including coturn run: \
+#### 컨테이너 설정
+coturn을 포함한 컨테이너를 재시작하려면 다음을 실행합니다. \
   `docker compose -f docker-compose-coturn.yml restart`
 
 <br>
 
-#### Setup container
-To stop the container including coturn run: \
+#### 컨테이너 설정
+coturn을 포함한 컨테이너를 중지하려면 다음을 실행합니다. \
   `docker compose -f docker-compose-coturn.yml stop`
 
 <br>
 
-### Firewall
-To run PairDrop including its own coturn-server you need to punch holes in the firewall. These ports must be opened additionally:
+### 방화벽
+자체 coturn 서버를 포함하여 PairDrop을 실행하려면 방화벽에서 포트를 열어야 합니다. 다음 포트를 추가로 열어야 합니다.
 - 3478 tcp/udp
 - 5349 tcp/udp
 - 10000:20000 tcp/udp
 
 <br>
 
-## Local Development
+## 로컬 개발
 
-### Install
+### 설치
 
-All files needed for developing are available in the folder `./dev`.
+개발에 필요한 모든 파일은 `./dev` 폴더에 있습니다.
 
-For convenience, there is also a docker compose file for developing:
+편의를 위해 개발용 docker compose 파일도 제공됩니다.
 
-#### Developing with docker compose
-First, [Install docker with docker compose.](https://docs.docker.com/compose/install/)
+#### docker compose로 개발하기
+먼저 [docker와 docker compose를 설치합니다.](https://docs.docker.com/compose/install/)
 
-Then, clone the repository and run docker compose:
+그런 다음 저장소를 클론하고 docker compose를 실행합니다.
 
 ```bash
 git clone https://github.com/schlagmichdoch/PairDrop.git && cd PairDrop
@@ -656,54 +662,55 @@ git clone https://github.com/schlagmichdoch/PairDrop.git && cd PairDrop
 docker compose -f docker-compose-dev.yml up --no-deps --build
 ```
 
-Now point your web browser to `http://localhost:8080`.
+이제 웹 브라우저에서 `http://localhost:8080`으로 접속합니다.
 
-- To debug the Node.js server, run `docker logs pairdrop`.
-- After changes to the code you have to rerun the `docker compose` command
+- Node.js 서버를 디버깅하려면 `docker logs pairdrop`을 실행합니다.
+- 코드를 변경한 후에는 `docker compose` 명령을 다시 실행해야 합니다.
 
 <br>
 
-#### Testing PWA related features
+<a id="testing-pwa-related-features"></a>
+#### PWA 관련 기능 테스트하기
 
-PWAs requires the app to be served under a correctly set up and trusted TLS endpoint.
+PWA는 앱이 올바르게 설정되고 신뢰할 수 있는 TLS 엔드포인트에서 제공되어야 합니다.
 
-The NGINX container creates a CA certificate and a website certificate for you. 
-To correctly set the common name of the certificate, 
-you need to change the FQDN environment variable in `docker-compose-dev.yml`
-to the fully qualified domain name of your workstation. (Default: localhost)
+NGINX 컨테이너가 CA 인증서와 웹사이트 인증서를 대신 생성합니다. 
+인증서의 common name을 올바르게 설정하려면 
+`docker-compose-dev.yml`의 FQDN 환경 변수를 
+작업용 컴퓨터의 정규화된 도메인 이름(FQDN)으로 변경해야 합니다. (기본값: localhost)
 
-If you want to test PWA features, you need to trust the CA of the certificate for your local deployment. \
-For your convenience, you can download the crt file from `http://<Your FQDN>:8080/ca.crt`. \
-Install that certificate to the trust store of your operating system. \
+PWA 기능을 테스트하려면 로컬 배포용 인증서의 CA를 신뢰하도록 설정해야 합니다. \
+편의를 위해 `http://<Your FQDN>:8080/ca.crt`에서 crt 파일을 내려받을 수 있습니다. \
+해당 인증서를 운영 체제의 신뢰 저장소에 설치하십시오. \
 
 ##### Windows
-- Make sure to install it to the `Trusted Root Certification Authorities` store.
+- 반드시 `신뢰할 수 있는 루트 인증 기관` 저장소에 설치하십시오.
 
 ##### macOS
-- Double-click the installed CA certificate in `Keychain Access`,
-- expand `Trust`, and select `Always Trust` for SSL.
+- `키체인 접근`에서 설치된 CA 인증서를 두 번 클릭하고,
+- `신뢰`를 펼친 다음 SSL에 대해 `항상 신뢰`를 선택합니다.
 
 ##### Firefox
-Firefox uses its own trust store. To install the CA:
-- point Firefox at `http://<Your FQDN>:8080/ca.crt` (Default: `http://localhost:8080/ca.crt`)
-- When prompted, select `Trust this CA to identify websites` and click _OK_.
+Firefox는 자체 신뢰 저장소를 사용합니다. CA를 설치하려면 다음과 같이 합니다.
+- Firefox로 `http://<Your FQDN>:8080/ca.crt` (기본값: `http://localhost:8080/ca.crt`)에 접속합니다.
+- 메시지가 표시되면 `이 CA를 웹 사이트 식별에 신뢰` 항목을 선택하고 _확인_을 클릭합니다.
 
-Alternatively:
-1. Download `ca.crt` from `http://<Your FQDN>:8080/ca.crt` (Default: `http://localhost:8080/ca.crt`)
-2. Go to `about:preferences#privacy` scroll down to `Security` and `Certificates` and click `View Certificates`
-3. Import the downloaded certificate file (step 1)
+다른 방법:
+1. `http://<Your FQDN>:8080/ca.crt` (기본값: `http://localhost:8080/ca.crt`)에서 `ca.crt`를 내려받습니다.
+2. `about:preferences#privacy`로 이동하여 `보안`과 `인증서`까지 스크롤한 뒤 `인증서 보기`를 클릭합니다.
+3. 내려받은 인증서 파일(1단계)을 가져옵니다.
 
 ##### Chrome
-- When using Chrome, you need to restart Chrome so it reloads the trust store (`chrome://restart`).
-- Additionally, after installing a new cert, you need to clear the Storage (DevTools → Application → Clear storage → Clear site data).
+- Chrome을 사용하는 경우 신뢰 저장소를 다시 불러오도록 Chrome을 재시작해야 합니다 (`chrome://restart`).
+- 또한 새 인증서를 설치한 후에는 저장소를 지워야 합니다 (DevTools → Application → Clear storage → Clear site data).
 
 ##### Google Chrome
-- To skip the installation of the certificate, you can also open `chrome://flags/#unsafely-treat-insecure-origin-as-secure`
-- The feature `Insecure origins treated as secure` must be enabled and the list must include your PairDrop test instance. E.g.: `http://127.0.0.1:3000,https://127.0.0.1:8443`
+- 인증서 설치를 건너뛰려면 `chrome://flags/#unsafely-treat-insecure-origin-as-secure`를 열 수도 있습니다.
+- `Insecure origins treated as secure` 기능을 활성화해야 하며, 목록에 PairDrop 테스트 인스턴스가 포함되어야 합니다. 예: `http://127.0.0.1:3000,https://127.0.0.1:8443`
 
-Please note that the certificates (CA and webserver cert) expire after a day.
-Also, whenever you restart the NGINX Docker container new certificates are created.
+인증서(CA 및 웹 서버 인증서)는 하루 후에 만료된다는 점에 유의하십시오.
+또한 NGINX Docker 컨테이너를 재시작할 때마다 새 인증서가 생성됩니다.
 
-The site is served on `https://<Your FQDN>:8443` (Default: `https://localhost:8443`).
+사이트는 `https://<Your FQDN>:8443` (기본값: `https://localhost:8443`)에서 제공됩니다.
 
-[< Back](/README.md)
+[< 뒤로](/README.md)
