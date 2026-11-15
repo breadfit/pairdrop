@@ -10,17 +10,17 @@ version="v1.10.4"
 help()
 {
    # Display Help
-   echo "Send files or text with PairDrop via command-line interface."
-   echo "Current domain: ${DOMAIN}"
+   echo "명령줄 인터페이스로 PairDrop을 통해 파일 또는 텍스트를 보냅니다."
+   echo "현재 도메인: ${DOMAIN}"
    echo
-   echo "Usage:"
-   echo -e "Open PairDrop:\t\t$(basename "$0")"
-   echo -e "Send files:\t\t$(basename "$0") file1/directory1 (file2/directory2 file3/directory3 ...)"
-   echo -e "Send text:\t\t$(basename "$0") -t \"text\""
-   echo -e "Specify domain:\t\t$(basename "$0") -d \"https://pairdrop.net/\""
-   echo -e "Show this help text:\t$(basename "$0") (-h|--help)"
+   echo "사용법:"
+   echo -e "PairDrop 열기:\t\t$(basename "$0")"
+   echo -e "파일 보내기:\t\t$(basename "$0") file1/directory1 (file2/directory2 file3/directory3 ...)"
+   echo -e "텍스트 보내기:\t\t$(basename "$0") -t \"텍스트\""
+   echo -e "도메인 지정:\t\t$(basename "$0") -d \"https://pairdrop.net/\""
+   echo -e "이 도움말 보기:\t$(basename "$0") (-h|--help)"
    echo
-   echo "This pairdrop-cli version was released alongside ${version}"
+   echo "이 pairdrop-cli 버전은 ${version}과 함께 배포되었습니다"
 }
 
 openPairDrop()
@@ -33,7 +33,7 @@ openPairDrop()
     url="${url}#${hash}"
   fi
 
-  echo "PairDrop is opening at $DOMAIN"
+  echo "PairDrop을 여는 중: $DOMAIN"
   if [[ $OS == "Windows" ]];then
     start "$url"
   elif [[ $OS == "Mac" ]];then
@@ -66,9 +66,9 @@ setOs()
 
 specifyDomain()
 {
-  [[ ! $1 = http* ]] || [[ ! $1 = */ ]] && echo "Incorrect format. Specify domain like https://pairdrop.net/" && exit
+  [[ ! $1 = http* ]] || [[ ! $1 = */ ]] && echo "형식이 올바르지 않습니다. https://pairdrop.net/ 처럼 도메인을 지정하세요" && exit
   echo "DOMAIN=${1}" > "$config_path"
-  echo -e "Domain is now set to:\n$1\n"
+  echo -e "도메인이 다음으로 설정되었습니다:\n$1\n"
 }
 
 sendText()
@@ -83,7 +83,7 @@ sendText()
       elif [[ $OS == "Mac" ]];then
         echo -n "$hash" | pbcopy
       else
-        (echo -n "$hash" | xclip) || echo "You need to install xclip for sending bigger files from cli"
+        (echo -n "$hash" | xclip) || echo "CLI에서 더 큰 파일을 보내려면 xclip을 설치해야 합니다"
       fi
       hash=
     fi
@@ -137,7 +137,7 @@ sendFiles()
 
   for arg in "$@"; do
    echo "$arg"
-   [[ ! -e "$arg" ]] && echo "The given path $arg does not exist." && exit
+   [[ ! -e "$arg" ]] && echo "지정한 경로 $arg 가 존재하지 않습니다." && exit
 
     # Remove trailing slash from directory
     arg="${arg%/}"
@@ -202,7 +202,7 @@ sendFiles()
     pathsPS=${pathsPS%??}
   fi
 
-  echo "Preparing ${fileCount} files and ${directoryCount} directories..."
+  echo "파일 ${fileCount}개와 디렉터리 ${directoryCount}개를 준비하는 중..."
 
   # if arguments include files only -> zip files once so files it is unzipped by sending browser
   # if arguments include directories -> wrap first zip in a second wrapper zip so that after unzip by sending browser a zip file is sent to receiver
@@ -217,7 +217,7 @@ sendFiles()
   #                |-f5
   # -> truncate (relative) paths but keep directories
   
-  [[ -e "$zipToSendAbs" ]] && echo "Cannot overwrite $zipToSendAbs. Please remove first." && exit
+  [[ -e "$zipToSendAbs" ]] && echo "$zipToSendAbs 를 덮어쓸 수 없습니다. 먼저 삭제해 주세요." && exit
 
   if [[ $OS == "Windows" ]];then
     # Powershell does preferred zip structure natively
@@ -250,7 +250,7 @@ sendFiles()
   # If directories are included send as zip
   # -> Create additional zip wrapper which will be unzipped by the sending browser
   if [[ "$directoryCount" != 0 ]]; then
-    echo "Bundle as ZIP file..."
+    echo "ZIP 파일로 묶는 중..."
 
     # Prevent filename from being absolute zip path by "cd"ing to directory before zipping
     zipToSendDirectory=$(dirname "$zipToSendAbs")
@@ -258,7 +258,7 @@ sendFiles()
 
     cd "$zipToSendDirectory"
     
-    [[ -e "$wrapperZipAbs" ]] && echo "Cannot overwrite $wrapperZipAbs. Please remove first." && exit
+    [[ -e "$wrapperZipAbs" ]] && echo "$wrapperZipAbs 를 덮어쓸 수 없습니다. 먼저 삭제해 주세요." && exit
     
     if [[ $OS == "Windows" ]];then
       powershell.exe -Command "Compress-Archive -Path ${zipToSendBaseName} -DestinationPath ${wrapperZipAbsPS} -CompressionLevel Optimal"
@@ -294,8 +294,8 @@ sendFiles()
     elif [ -n "$WAYLAND_DISPLAY" ]; then
       # Wayland
       if ! command -v wl-copy &> /dev/null; then
-          echo -e "You need to install 'wl-copy' to send bigger filePathsUnix from cli"
-          echo "Try: sudo apt install wl-clipboard"
+          echo -e "CLI에서 더 큰 파일을 보내려면 'wl-copy'를 설치해야 합니다"
+          echo "다음을 실행해 보세요: sudo apt install wl-clipboard"
           exit 1
       fi
       # Workaround to prevent use of Pipe which has a max letter limit
@@ -305,8 +305,8 @@ sendFiles()
     else
       # X11
       if ! command -v xclip &> /dev/null; then
-          echo -e "You need to install 'xclip' to send bigger filePathsUnix from cli"
-          echo "Try: sudo apt install xclip"
+          echo -e "CLI에서 더 큰 파일을 보내려면 'xclip'을 설치해야 합니다"
+          echo "다음을 실행해 보세요: sudo apt install xclip"
           exit 1
       fi
       echo -n "$hash" | xclip -sel c
@@ -344,7 +344,7 @@ config_path="${script_path}/.pairdrop-cli-config"
 [ ! -f "$config_path" ] &&
   specifyDomain "https://pairdrop.net/" &&
   [ ! -f "$config_path" ] &&
-  echo "Could not create config file. Add 'DOMAIN=https://pairdrop.net/' to a file called .pairdrop-cli-config in the same file as this 'pairdrop' bash file (${script_path})" &&
+  echo "설정 파일을 만들 수 없습니다. 'pairdrop' bash 파일과 같은 위치(${script_path})의 .pairdrop-cli-config 파일에 'DOMAIN=https://pairdrop.net/'을 추가하세요" &&
   exit
 
 # Read config variables

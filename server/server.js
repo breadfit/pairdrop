@@ -25,7 +25,7 @@ export default class PairDropServer {
             app.set('trust proxy', conf.rateLimit);
 
             if (!conf.debugMode) {
-                console.log("Use DEBUG_MODE=true to find correct number for RATE_LIMIT.");
+                console.log("RATE_LIMIT의 올바른 값을 찾으려면 DEBUG_MODE=true를 사용하세요.");
             }
         }
 
@@ -60,7 +60,7 @@ export default class PairDropServer {
 
         app.get('/', (req, res) => {
             res.sendFile('index.html');
-            console.log(`Serving client files from:\n${publicPathAbs}`)
+            console.log(`클라이언트 파일 제공 경로:\n${publicPathAbs}`)
         });
 
         const hostname = conf.localhostOnly ? '127.0.0.1' : null;

@@ -47,7 +47,7 @@ export default class PairDropWsServer {
         try {
             message = JSON.parse(message);
         } catch (e) {
-            console.warn("WS: Received JSON is malformed");
+            console.warn("WS: 수신한 JSON 형식이 올바르지 않습니다");
             return;
         }
 
@@ -107,7 +107,7 @@ export default class PairDropWsServer {
                     this._signalAndRelay(sender, message);
                 }
                 else {
-                    console.log("Websocket fallback is not activated on this instance.")
+                    console.log("이 인스턴스에서는 웹소켓 폴백이 활성화되어 있지 않습니다.")
                 }
         }
     }

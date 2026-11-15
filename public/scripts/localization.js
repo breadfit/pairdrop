@@ -2,7 +2,7 @@ class Localization {
     constructor() {
         Localization.$htmlRoot = document.querySelector('html');
 
-        Localization.defaultLocale = "en";
+        Localization.defaultLocale = "ko";
         Localization.supportedLocales = [
             "ar", "be", "bg", "ca", "cs", "da", "de", "en", "es", "et", "eu", "fa", "fr", "he", "hu", "id", "it", "ja",
             "kn", "ko", "nb", "nl", "nn", "pl", "pt-BR", "ro", "ru", "sk", "ta", "tr", "uk", "zh-CN", "zh-HK", "zh-TW"

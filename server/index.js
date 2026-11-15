@@ -18,15 +18,15 @@ process.on('SIGTERM', () => {
 
 // Handle APP ERRORS
 process.on('uncaughtException', (error, origin) => {
-    console.log('----- Uncaught exception -----')
+    console.log('----- 처리되지 않은 예외 -----')
     console.log(error)
-    console.log('----- Exception origin -----')
+    console.log('----- 예외 발생 위치 -----')
     console.log(origin)
 })
 process.on('unhandledRejection', (reason, promise) => {
-    console.log('----- Unhandled Rejection at -----')
+    console.log('----- 처리되지 않은 Promise 거부 위치 -----')
     console.log(promise)
-    console.log('----- Reason -----')
+    console.log('----- 사유 -----')
     console.log(reason)
 })
 
@@ -111,11 +111,11 @@ conf.localhostOnly = process.argv.includes('--localhost-only');
 // Validate configuration
 if (conf.ipv6Localize) {
     if (!(0 < conf.ipv6Localize && conf.ipv6Localize < 8)) {
-        console.error("ipv6Localize must be an integer between 1 and 7");
+        console.error("ipv6Localize는 1에서 7 사이의 정수여야 합니다");
         process.exit(1);
     }
 
-    console.log("IPv6 client IPs will be localized to",
+    console.log("IPv6 클라이언트 IP는 다음 단위로 지역화됩니다:",
         conf.ipv6Localize,
         conf.ipv6Localize === 1 ? "segment" : "segments");
 }
@@ -125,8 +125,8 @@ if (conf.signalingServer) {
     const containsProtocol = /:\/\//.test(conf.signalingServer)
     const endsWithSlash = /\/$/.test(conf.signalingServer)
     if (!isValidUrl || containsProtocol) {
-        console.error("SIGNALING_SERVER must be a valid url without the protocol prefix.\n" +
-            "Examples of valid values: `pairdrop.net`, `pairdrop.example.com:3000`, `example.com/pairdrop`");
+        console.error("SIGNALING_SERVER는 프로토콜 접두사가 없는 올바른 URL이어야 합니다.\n" +
+            "올바른 값의 예: `pairdrop.net`, `pairdrop.example.com:3000`, `example.com/pairdrop`");
         process.exit(1);
     }
 
@@ -135,16 +135,16 @@ if (conf.signalingServer) {
     }
 
     if (process.env.RTC_CONFIG || conf.wsFallback || conf.ipv6Localize) {
-        console.error("SIGNALING_SERVER cannot be used alongside WS_FALLBACK, RTC_CONFIG or IPV6_LOCALIZE as these " +
-            "configurations are specified by the signaling server.\n" +
-            "To use this instance as the signaling server do not set SIGNALING_SERVER");
+        console.error("SIGNALING_SERVER는 WS_FALLBACK, RTC_CONFIG, IPV6_LOCALIZE와 함께 사용할 수 없습니다. 이 설정들은 " +
+            "시그널링 서버에서 지정되기 때문입니다.\n" +
+            "이 인스턴스를 시그널링 서버로 사용하려면 SIGNALING_SERVER를 설정하지 마세요");
         process.exit(1);
     }
 }
 
 // Logs for debugging
 if (conf.debugMode) {
-    console.log("DEBUG_MODE is active. To protect privacy, do not use in production.");
+    console.log("DEBUG_MODE가 활성화되어 있습니다. 개인정보 보호를 위해 운영 환경에서는 사용하지 마세요.");
     console.debug("\n");
     console.debug("----DEBUG ENVIRONMENT VARIABLES----")
     console.debug(JSON.stringify(conf, null, 4));
@@ -180,7 +180,7 @@ if (!conf.signalingServer) {
     // Start websocket server if SIGNALING_SERVER is not set
     new PairDropWsServer(pairDropServer.server, conf);
 } else {
-    console.log("This instance does not include a signaling server. Clients on this instance connect to the following signaling server:", conf.signalingServer);
+    console.log("이 인스턴스에는 시그널링 서버가 포함되어 있지 않습니다. 이 인스턴스의 클라이언트는 다음 시그널링 서버에 연결합니다:", conf.signalingServer);
 }
 
-console.log('\nPairDrop is running on port', conf.port);
+console.log('\nPairDrop이 다음 포트에서 실행 중입니다:', conf.port);
