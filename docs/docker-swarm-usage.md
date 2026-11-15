@@ -1,47 +1,47 @@
-# Docker Swarm Usage
+<a id="docker-swarm-usage"></a>
+# Docker Swarm 사용법
 
-## Healthcheck
+## 헬스체크
 
-The [Docker Image](../Dockerfile) includes a health check with the following options:
+[Docker 이미지](../Dockerfile)에는 다음 옵션으로 헬스체크가 포함되어 있습니다.
 
 ```
 --interval=30s
 ```
-> Specifies the time interval to run the health check. \
-> In this case, the health check is performed every 30 seconds.
+> 헬스체크를 실행하는 시간 간격을 지정합니다. \
+> 여기서는 30초마다 헬스체크를 수행합니다.
 <br>
 
 ```
 --timeout=10s
 ```
-> Specifies the amount of time to wait for a response from the \"HEALTHCHECK\" command. \
-> If the response does not arrive within 10 seconds, the health check fails.
+> \"HEALTHCHECK\" 명령의 응답을 기다리는 시간을 지정합니다. \
+> 10초 안에 응답이 오지 않으면 헬스체크는 실패합니다.
 <br>
 
 ```
 --start-period=5s
 ```
-> Specifies the amount of time to wait before starting the health check process. \
-> In this case, the health check process will begin 5 seconds after the container is started.
+> 헬스체크를 시작하기 전에 기다리는 시간을 지정합니다. \
+> 여기서는 컨테이너가 시작되고 5초 후에 헬스체크가 시작됩니다.
 <br>
 
 ```
 --retries=3
 ```
-> Specifies the number of times Docker should retry the health check \
-> before considering the container to be unhealthy.
+> 컨테이너를 비정상(unhealthy)으로 판단하기 전에 \
+> Docker가 헬스체크를 재시도하는 횟수를 지정합니다.
 <br>
 
 
-The CMD instruction is used to define the command that will be run as part of the health check. \
-In this case, the command is `wget --quiet --tries=1 --spider http://localhost:3000/ || exit 1`. \
-This command will attempt to connect to `http://localhost:3000/` \
-and if it fails it will exit with a status code of `1`. \
-If this command returns a status code other than `0`, the health check fails.
+CMD 명령어는 헬스체크의 일부로 실행할 명령을 정의하는 데 사용됩니다. \
+여기서 명령은 `wget --quiet --tries=1 --spider http://localhost:3000/ || exit 1`입니다. \
+이 명령은 `http://localhost:3000/`에 연결을 시도하고, \
+실패하면 상태 코드 `1`로 종료합니다. \
+이 명령이 `0`이 아닌 상태 코드를 반환하면 헬스체크는 실패합니다.
 
-Overall, this \"HEALTHCHECK\" instruction is defining a health check process \
-that runs every 30 seconds, and waits up to 10 seconds for a response, \
-begins 5 seconds after the container is started, and retries up to 3 times. \ 
-The health check attempts to connect to http://localhost:3000/ \
-and will considers the container unhealthy if unable to connect.
-
+정리하면, 이 \"HEALTHCHECK\" 명령은 \
+30초마다 실행되고, 응답을 최대 10초까지 기다리며, \
+컨테이너가 시작된 5초 후에 시작되고, 최대 3번 재시도하는 헬스체크 과정을 정의합니다. \ 
+헬스체크는 http://localhost:3000/ 에 연결을 시도하며, \
+연결할 수 없으면 컨테이너를 비정상으로 판단합니다.

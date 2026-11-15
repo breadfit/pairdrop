@@ -1,82 +1,84 @@
-# Technical Documentation
-## Encryption, WebRTC, STUN and TURN
+# 기술 문서
+<a id="encryption-webrtc-stun-and-turn"></a>
+## 암호화, WebRTC, STUN, TURN
 
-Encryption is mandatory for WebRTC connections and completely done by the browser itself.
+WebRTC 연결에서 암호화는 필수이며, 전적으로 브라우저가 처리합니다.
 
-When the peers are first connecting, \
-a channel is created by exchanging their signaling info. \
-This signaling information includes some sort of public key \
-and is specific to the clients IP address. \
-That is what the STUN Server is used for: \
-it simply returns your public IP address \
-as you only know your local ip address \
-if behind a NAT (router).
+피어가 처음 연결될 때 \
+서로의 시그널링 정보를 교환해 채널을 만듭니다. \
+이 시그널링 정보에는 일종의 공개 키가 포함되어 있고 \
+클라이언트의 IP 주소에 따라 달라집니다. \
+STUN 서버는 바로 이를 위해 사용됩니다. \
+NAT(공유기) 뒤에 있으면 \
+자신의 로컬 IP 주소만 알 수 있으므로, \
+STUN 서버는 단순히 공인 IP 주소를 알려 줍니다.
 
-The transfer of the signaling info is done by the \
-PairDrop / Snapdrop server using secure websockets. \
-After that the channel itself is completely peer-to-peer \
-and all info can only be decrypted by the receiver. \
-When the two peers are on the same network \
-or when they are not behind any NAT system \
-(which they are always for classic \
-Snapdrop and for not paired users on PairDrop) \
-the files are send directly peer-to-peer.
+시그널링 정보의 전달은 \
+PairDrop / Snapdrop 서버가 보안 웹소켓으로 처리합니다. \
+그 이후의 채널 자체는 완전한 P2P이며 \
+모든 정보는 수신자만 복호화할 수 있습니다. \
+두 피어가 같은 네트워크에 있거나 \
+NAT 시스템 뒤에 있지 않은 경우에는 \
+(기본 Snapdrop과 PairDrop에서 페어링하지 않은 사용자는 \
+항상 이 경우에 해당합니다) \
+파일이 P2P로 직접 전송됩니다.
 
-When a user is behind a NAT (behind a router) \
-the contents are channeled through a TURN server. \
-But again, the contents send via the channel \
-can only be decrypted by the receiver. \
-So a rogue TURN server could only \
-see that there is a connection, but not what is sent. \
-Obviously, connections which are channeled through a TURN server \
-are not as fast as peer-to-peer.
+사용자가 NAT 뒤(공유기 뒤)에 있으면 \
+콘텐츠는 TURN 서버를 거쳐 전달됩니다. \
+하지만 이 경우에도 채널로 전송되는 콘텐츠는 \
+수신자만 복호화할 수 있습니다. \
+따라서 악의적인 TURN 서버가 알 수 있는 것은 \
+연결이 있다는 사실뿐이며, 무엇이 전송되는지는 알 수 없습니다. \
+물론 TURN 서버를 거치는 연결은 \
+P2P만큼 빠르지 않습니다.
 
-The selection whether a TURN server is needed \
-or not is also done automatically by the web browser. \
-It simply iterated through the configured \
-RTC iceServers and checks what works. \
-Only if the STUN server is not sufficient, \
-the TURN server is used.
+TURN 서버가 필요한지 여부도 \
+웹 브라우저가 자동으로 선택합니다. \
+브라우저는 설정된 RTC iceServers를 \
+차례로 시도하면서 어떤 것이 작동하는지 확인합니다. \
+STUN 서버만으로 충분하지 않을 때에만 \
+TURN 서버를 사용합니다.
 
 ![img](https://www.wowza.com/wp-content/uploads/WeRTC-Encryption-Diagrams-01.jpg)
-_Diagram created by wowza.com_
+_다이어그램 제공: wowza.com_
 
-Good thing: if your device has an IPv6 address \
-it is uniquely reachable by that address. \
-As I understand it, when both devices are using \
-IPv6 addresses there is no need for a TURN server in any scenario.
+좋은 점도 있습니다. 기기에 IPv6 주소가 있으면 \
+그 주소로 고유하게 접근할 수 있습니다. \
+제가 이해하기로는 두 기기가 모두 \
+IPv6 주소를 사용하면 어떤 경우에도 TURN 서버가 필요 없습니다.
 
-Learn more by reading https://www.wowza.com/blog/webrtc-encryption-and-security \
-which gives a good insight into STUN, TURN and WebRTC.
-
-
-## Device Pairing
-
-The pairing functionality uses the [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
-
-It works by creating long secrets that are served \
-by the server to the initiating and requesting pair peer, \
-when the inserted key is correct. \
-These long secrets are then saved to an \
-indexedDB database in the web browser. \
-IndexedDB is somewhat the successor of localStorage \
-as saved data is shared between all tabs. \
-It goes one step further by making the data persistent \
-and available offline if implemented to a PWA.
-
-All secrets a client has saved to its database \
-are sent to the PairDrop server. \
-Peers with a common secret are discoverable \
-to each other analog to peers with the same \
-IP address are discoverable by each other.
-
-What I really like about this approach (and the reason I implemented it) \
-is that devices on the same network are always \
-visible regardless whether any devices are paired or not. \
-The main user flow is never obstructed. \
-Paired devices are simply shown additionally. \
-This makes it in my idea better than the idea of \
-using a room system as [discussed here](https://github.com/RobinLinus/snapdrop/pull/214).
+STUN, TURN, WebRTC를 잘 이해할 수 있는 \
+https://www.wowza.com/blog/webrtc-encryption-and-security 를 읽고 더 알아보세요.
 
 
-[< Back](/README.md)
+## 기기 페어링
+
+페어링 기능은 [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)를 사용합니다.
+
+입력한 키가 올바르면 \
+서버가 페어링을 시작한 피어와 요청한 피어에게 \
+긴 시크릿을 전달하는 방식으로 작동합니다. \
+이 긴 시크릿은 웹 브라우저의 \
+indexedDB 데이터베이스에 저장됩니다. \
+IndexedDB는 저장된 데이터가 모든 탭에서 공유된다는 점에서 \
+localStorage의 후속 격이라고 할 수 있습니다. \
+여기서 한 걸음 더 나아가 데이터를 영구적으로 유지하고, \
+PWA로 구현하면 오프라인에서도 사용할 수 있습니다.
+
+클라이언트가 데이터베이스에 저장한 모든 시크릿은 \
+PairDrop 서버로 전송됩니다. \
+공통된 시크릿을 가진 피어는 \
+같은 IP 주소를 가진 피어가 서로를 찾을 수 있는 것과 \
+마찬가지로 서로를 찾을 수 있습니다.
+
+이 방식에서 제가 정말 마음에 들어 하는 점(그리고 이를 구현한 이유)은 \
+기기를 페어링했는지와 상관없이 \
+같은 네트워크에 있는 기기가 항상 \
+표시된다는 것입니다. \
+핵심 사용자 흐름이 방해받지 않습니다. \
+페어링된 기기는 추가로 표시될 뿐입니다. \
+그래서 제 생각에는 [여기서 논의된](https://github.com/RobinLinus/snapdrop/pull/214) \
+룸 시스템을 사용하는 방식보다 더 낫습니다.
+
+
+[< 뒤로](/README.md)

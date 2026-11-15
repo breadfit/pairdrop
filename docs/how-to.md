@@ -51,7 +51,7 @@ This pairdrop-cli version was released alongside v1.10.4
    ```shell
    wget "https://github.com/schlagmichdoch/PairDrop/releases/download/v1.11.2/pairdrop-cli.zip"
    ```
-   or
+   또는
    ```shell
    curl -LO "https://github.com/schlagmichdoch/PairDrop/releases/download/v1.11.2/pairdrop-cli.zip"
    ```
